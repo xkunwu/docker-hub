@@ -1,37 +1,41 @@
-FROM ta/cuda:9.0-ubuntu18.04
+FROM cuda:9.0-ubuntu18.04
 
 ###########################################
 # miniconda
-# integrated from https://github.com/ContinuumIO/docker-images/tree/master/miniconda3
 ###########################################
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
+ARG PYTHON_VERSION=3.6
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        software-properties-common \
+        curl wget sudo \
+        lxde xvfb tightvncserver \
+    && apt-get autoremove --purge \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update --fix-missing && \
-    apt-get install -y wget bzip2 ca-certificates curl git && \
+    apt-get install -y && \
+    wget bzip2 ca-certificates curl git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ENV HOME /root
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    /opt/conda/bin/conda clean -tipsy && \
+RUN curl -o ~/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+     chmod +x ~/miniconda.sh && \
+     ~/miniconda.sh -b -p /opt/conda && \
+     rm ~/miniconda.sh && \
+     /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy scipy mkl mkl-include cython jupyter && \
+     /opt/conda/bin/conda clean -ya && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc
 
 ###########################################
 # Tensorflow + Jupyterlab
 ###########################################
-ENV HOME /root
 # installing both cpu and gpu versions
 # because installing gpu version alone will give only "tensorflow-gpu" package, 
 # which is easily overriden by "tensorflow" (when you installing some packages) which has no gpu support
-RUN pip install tensorflow https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.9.0-cp36-cp36m-linux_x86_64.whl \
-    && rm -rf ~/.cache/pip
-
-# install jupyterlab
-RUN conda install -y jupyterlab && conda clean --all
 
 ###########################################
 # X11 VNC XVFB
