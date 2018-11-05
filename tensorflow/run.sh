@@ -1,1 +1,6 @@
-docker run --runtime=nvidia -it --rm -p 5901:5900 ta/gym
+#/bin/bash
+nvidia-docker run --init -p 5902:5900 gym
+#nvidia-docker run -ti --init --rm \
+#    -p 5902:5900 \
+#    --entrypoint "/bin/bash" \
+#    gym

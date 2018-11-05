@@ -1,1 +1,1 @@
-docker build -t ta/gym .
+docker build -t gym .
