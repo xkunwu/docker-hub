@@ -7,8 +7,7 @@ ENV NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
     NVIDIA_REQUIRE_CUDA="cuda>=9.0" \
     PATH=/usr/local/cuda-9.0/bin:${PATH} \
-    LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH \
-    USER=${USER} USER_ID=1000
+    LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         software-properties-common sudo supervisor \
@@ -19,10 +18,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
         gcc-6 g++-6 \
     && apt-get autoremove \
     && apt-get autoclean \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --uid ${USER_ID} --user-group \
-        --create-home --shell /bin/bash --groups adm,sudo \
-        ${USER}
+    && rm -rf /var/lib/apt/lists/*
 
 # install cuda from a runfile
 COPY cuda /tmp/cuda
@@ -43,11 +39,10 @@ EXPOSE 5900 8888 6006
 # startup
 COPY image /
 
-ENV HOME=/home/${USER} \
+ENV HOME=/root \
+    USER=root \
     SHELL=/bin/bash \
     DISPLAY=:1
-USER ${USER}
-WORKDIR ${HOME}
 
 # services like lxde, xvfb, x11vnc will be started
 ENTRYPOINT ["/startup.sh"]
