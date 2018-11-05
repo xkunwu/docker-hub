@@ -1,0 +1,4 @@
+.tags*
+*.bak
+rsync-proj.sh
+task-issue.md
