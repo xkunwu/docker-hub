@@ -1,23 +1,30 @@
 FROM cuda:9.0-ubuntu18.04
 
+ENV PATH=/opt/bazel/bin:$PATH \
+    TMP=/tmp
+
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    python3-dev \
-    && apt-get autoremove \
-    && apt-get autoclean \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install tensorflow https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-1.9.0-cp36-cp36m-linux_x86_64.whl \
-    && rm -rf ~/.cache/pip
+    python3-dev && \
+    apt-get autoremove && \
+    apt-get autoclean && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install six numpy wheel mock && \
+    pip install keras_applications==1.0.5 --no-deps && \
+    pip install keras_preprocessing==1.0.3 --no-deps && \
+    rm -rf ~/.cache/pip
 
 
 ###########################################
 # Tensorflow
 ###########################################
-# installing both cpu and gpu versions
-# because installing gpu version alone will give only "tensorflow-gpu" package,
-# which is easily overriden by "tensorflow" (when you installing some packages) which has no gpu support
+# install cuda from a runfile
+COPY tf /tmp/tf
+RUN cd /tmp/tf && \
+    chmod +x ./bazel-run.sh && \
+    ./bazel-run.sh --prefix=/opt/bazel && \
+    rm -rf /tmp/tf && \
+    cd /opt && \
+    git clone https://github.com/tensorflow/tensorflow.git && \
+    cd tensorflow
 
-# vnc jupyter tensorboard port
-EXPOSE 5900 8888 6006
-
-# services like lxde, xvfb, x11vnc will be started
-ENTRYPOINT ["/startup.sh"]
+WORKDIR /opt/tensorflow
