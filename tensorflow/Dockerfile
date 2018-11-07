@@ -17,7 +17,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 ###########################################
 # Tensorflow
 ###########################################
-# install cuda from a runfile
 COPY tf /tmp/tf
 RUN cd /tmp/tf && \
     chmod +x ./bazel-run.sh && \
