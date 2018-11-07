@@ -2,3 +2,7 @@
 *.bak
 rsync-proj.sh
 task-issue.md
+cuda-run
+cudnn.tgz
+bazel-run.sh
+tensorflow-*.whl
