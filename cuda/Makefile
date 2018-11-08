@@ -3,6 +3,7 @@ SHELL := /bin/bash
 image_name := cuda:9.0-ubuntu18.04
 user_me := $$(whoami)
 user_id := $$(id -u)
+cont_name := cuda-serve
 
 build:
 	docker build -t $(image_name) \
@@ -16,18 +17,23 @@ build:
 
 serve:
 	nvidia-docker run -ti --init \
-		--name cuda-serve \
+		--name $(cont_name) \
 		-p 5902:5900 -p 8888:8888 \
 		-e USER=$(user_me) \
 		$(image_name)
 
-# # --user $$(id -u):$$(id -g) \
+reattach:
+	docker start $(cont_name)
+	docker attach $(cont_name)
 
 inspect:
-	nvidia-docker run -ti --init --rm \
-		--name cuda-inspect \
-	    -p 5902:5900 -p 8888:8888 \
-	    -v $${PWD}:/workspace/source:ro \
+	docker start $(cont_name)
+	nvidia-docker exec -ti \
 		-e USER=$(user_me) \
-		--entrypoint "/bin/bash" \
-	    $(image_name)
+		--user $$(id -u):$$(id -g) \
+		$(cont_name) bash
+
+clean:
+	docker stop $(cont_name)
+	docker rm $(cont_name)
+	docker rmi $$(docker images -f "dangling=true" -q)

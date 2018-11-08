@@ -36,9 +36,10 @@ fi
 # VNC_PASSWORD=
 
 # must provide vnc password
+echo "setting VNC password ..."
 x11vnc -storepasswd /.vncpass
 chmod 400 /.vncpass
-sed -i 's/^command=x11vnc.*/& -rfbauth \/.vncpass/' /etc/supervisor/conf.d/supervisord.conf
+# sed -i 's/^command=x11vnc.*/& -rfbauth \/.vncpass/' /etc/supervisor/conf.d/supervisord.conf
 
 # start all the services
 /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
