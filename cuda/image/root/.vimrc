@@ -1,7 +1,7 @@
 "--------------------------------------------------------------------------------
 " basics
 "--------------------------------------------------------------------------------
-set nocompatible nomodeline showcmd showmode
+set nocompatible showcmd showmode
 "set lines=64 columns=120
 set encoding=utf-8
 set termencoding=utf-8
@@ -117,11 +117,8 @@ nmap <S-F6> :tabp<cr> " show prev tab
 "--------------------------------------------------------------------------------
 " tricks
 "--------------------------------------------------------------------------------
-" write to a file using sudo if you forgot to sudo vim file
-" it will prompt for sudo password when writing
-" %!, entire file through filter; then exec null cmd, gain sudo power; and
-" also tee to entire file (%)
-cmap W!!! %!sudo tee > /dev/null %
+" Allow saving of files as sudo when I forgot to start vim using sudo.
+cmap W!! w !sudo tee > /dev/null %
 
 " open the file explorer, and hit another - to move up one directory
 nmap _ :Vexplore!<CR>
@@ -240,5 +237,3 @@ nmap <C-_>d :scs find d <C-R>=expand("<cword>")<CR><CR>
 "
 "set ttimeoutlen=100
 endif
-
-

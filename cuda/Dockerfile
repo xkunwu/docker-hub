@@ -19,7 +19,7 @@ ENV NVIDIA_VISIBLE_DEVICES=all \
 RUN \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         software-properties-common sudo bash-completion \
-        tmux vim wget curl unzip supervisor \
+        tmux vim wget curl unzip supervisor net-tools \
         build-essential cmake git ca-certificates \
         dbus-x11 x11-utils \
         mesa-utils libgl1-mesa-dri \
@@ -69,5 +69,5 @@ RUN \
 ENV HOME=/home/$USER USER=$USER SHELL=/bin/bash
 
 # services like lxde, xvfb, x11vnc will be started
-ENTRYPOINT ["/startup.sh"]
-# CMD ["/startup.sh"]
+# ENTRYPOINT ["/startup.sh"]
+CMD ["/startup.sh"]
