@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 image_name := tensorflow:build
+cont_name := tensorflow-build
 
 test:
 	{ \
@@ -14,7 +15,11 @@ build:
 
 packing:
 	nvidia-docker run -ti -w /opt/tensorflow \
-		--name build-tf \
+		--name $(cont_name) \
 		-v $${PWD}:/mnt -e HOST_PERMS="$$(id -u):$$(id -g)" \
-		--entrypoint "/bin/bash" \
-    	$(image_name)
+    	$(image_name) bash
+
+copy_out:
+	docker container cp $(cont_name):/tmp/tensorflow-*.whl ./tensorflow.whl
+	# docker container rm -f $(cont_name)
+	# docker rmi $(image_name)

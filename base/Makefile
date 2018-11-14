@@ -1,12 +1,17 @@
 SHELL := /bin/bash
 
-image_name := exp:cuda
+image_name := exp:base
 user_me := $$(whoami)
+user_uid := $$(id -u)
+user_gid := $$(id -g)
 cont_name := exp-serve
 
 build:
 	docker build -t $(image_name) \
-		.
+		 --build-arg USER_ME=$(user_me) \
+		 --build-arg USER_UID=$(user_uid) \
+		 --build-arg USER_GID=$(user_gid) \
+		 .
 	docker image prune --force
 
 # build-squash:
@@ -18,7 +23,7 @@ serve:
 		--name=$(cont_name) \
 		--hostname=palau-docker \
 		--network="host" \
-		-p 5902:5902 -p 8888:8888 \
+		-p 5902:5902 \
 		-e USER=$(user_me) \
 		$(image_name)
 
@@ -27,7 +32,7 @@ debug:
 		--name=$(cont_name) \
 		--hostname=palau-docker \
 		--network="host" \
-		-p 5902:5902 -p 8888:8888 \
+		-p 5902:5902 \
 		-e USER=$(user_me) \
 		$(image_name) bash
 

@@ -15,7 +15,7 @@ set formatoptions+=mM
 highlight rightMargin term=bold ctermbg=red ctermfg=white guibg=red
 match rightMargin /.\%>81v*/
 set backspace=2 " enable backspace
-set number! " show line number
+set number " show line number
 set whichwrap=b,s,<,>,[,] " jump between lines at eol & bol
 set listchars=tab:.\ ,trail:. " show tab as: '. '
 " set autochdir " change dir to editing file's automatically
@@ -106,11 +106,13 @@ vnoremap <S-Del> "+x
 set pastetoggle=<F8>
 map <S-Insert>        "+gP
 cmap <S-Insert>        <C-R>+
+" substitute
+nnoremap <Leader>s :%s/\<<C-r><C-w>\>/
 
 "--------------------------------------------------------------------------------
 " QuickFix
 "--------------------------------------------------------------------------------
-nmap <F5> :tabedit %:h
+nnoremap <F5> :buffers<CR>:buffer<Space>
 nmap <F6> :tabn<cr> " show next tab
 nmap <S-F6> :tabp<cr> " show prev tab
 
@@ -121,8 +123,48 @@ nmap <S-F6> :tabp<cr> " show prev tab
 cmap W!! w !sudo tee > /dev/null %
 
 " open the file explorer, and hit another - to move up one directory
-nmap _ :Vexplore!<CR>
-nmap - :Explore!<CR>
+nmap - :Lexplore!<CR>
+nmap _ :Rexplore<CR>
+let g:netrw_liststyle = 3 " 3: tree style listing
+"let g:netrw_altv = 1 " right splitting
+let g:netrw_browse_split = 0 " =0: re-using the same window  (default)
+
+
+"--------------------------------------------------------------------------------
+" Tabline
+"--------------------------------------------------------------------------------
+fu! MyTabLabel(n)
+let buflist = tabpagebuflist(a:n)
+let winnr = tabpagewinnr(a:n)
+let string = fnamemodify(bufname(buflist[winnr - 1]), ':t')
+return empty(string) ? '[unnamed]' : string
+endfu
+
+fu! MyTabLine()
+let s = ''
+for i in range(tabpagenr('$'))
+" select the highlighting
+    if i + 1 == tabpagenr()
+    let s .= '%#TabLineSel#'
+    else
+    let s .= '%#TabLine#'
+    endif
+
+    " set the tab page number (for mouse clicks)
+    "let s .= '%' . (i + 1) . 'T'
+    " display tabnumber (for use with <count>gt, etc)
+    let s .= ' '. (i+1) . ' ' 
+
+    " the label is made by MyTabLabel()
+    let s .= ' %{MyTabLabel(' . (i + 1) . ')} '
+
+    if i+1 < tabpagenr('$')
+        let s .= ' |'
+    endif
+endfor
+return s
+endfu
+set tabline=%!MyTabLine()
 
 
 "--------------------------------------------------------------------------------
@@ -237,3 +279,5 @@ nmap <C-_>d :scs find d <C-R>=expand("<cword>")<CR><CR>
 "
 "set ttimeoutlen=100
 endif
+
+
