@@ -9,4 +9,4 @@ nohup jupyter-lab \
     /workspace 2>&1 &
 
 sleep 2
-jupyter-notebook list
+jupyter-notebook list  | sed -n "s/^.*token=\(\S\+\).*$/\1/p"

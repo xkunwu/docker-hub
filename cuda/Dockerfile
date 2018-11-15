@@ -1,12 +1,41 @@
 ########################################################
 # CUDA 9.0 on UBUNTU 18.04 with Miniconda, VNC Server
 ########################################################
-FROM exp:base
-ARG PYTHON_VERSION=3.6
+FROM ubuntu:18.04
 
-USER root
+## generate locale
+ENV \
+    TERM=xterm-256color
+RUN \
+    apt-get update && \
+    apt-get install -y --no-install-recommends locales && \
+    echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
+    locale-gen en_US.UTF-8
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
-# install cuda from a runfile
+## essential packages
+RUN \
+    apt-get install -y \
+        software-properties-common sudo bash-completion apt-utils \
+        vim tmux unzip bzip2 supervisor \
+        wget curl net-tools ca-certificates \
+        build-essential cmake git ffmpeg
+
+## vnc & desktop
+RUN \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        # tigervnc-standalone-server \
+        tightvncserver \
+        # lxde && \
+        xfce4 && \
+    apt-get purge -y pm-utils xscreensaver* && \
+    apt-get autoremove && \
+    apt-get autoclean && \
+    rm -rf /var/lib/apt/lists/*
+
+## install cuda from a runfile
 #COPY --chown=$USER_UID:$USER_GID cuda /tmp/cuda
 COPY cuda /tmp/cuda
 RUN \
@@ -24,9 +53,9 @@ ENV \
     PATH=/usr/local/cuda-9.0/bin:${PATH} \
     LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
 
-
+ARG PYTHON_VERSION=3.6
+## install Miniconda
 RUN \
-    echo "install Miniconda" && \
     curl -o /tmp/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     chmod +x /tmp/miniconda.sh && \
     /tmp/miniconda.sh -b -p /opt/conda && \
@@ -39,18 +68,39 @@ ENV \
 ARG USER_ME=me
 ARG USER_UID=1000
 ARG USER_GID=1000
-# update scripts
+## add the default user
+## weird "cp: cannot stat" error:
+## cp /root/{.vimrc,.tmux.conf} /home/$USER_ME && \
 COPY image /
 RUN \
+    umask 0002 && \
+    echo "create user $USER_ME ($USER_UID:$USER_GID)" && \
+    # useradd --uid $USER_UID --user-group --create-home --shell /bin/bash --groups adm,sudo,root $USER_ME && \
+    groupadd --gid $USER_GID $USER_ME && \
+    useradd --uid $USER_UID --gid $USER_GID --create-home --shell /bin/bash --groups adm,sudo,root $USER_ME && \
+    echo "$USER_ME:123123" | chpasswd && \
+    cp -t /home/$USER_ME /root/.vimrc /root/.tmux.conf && \
+    mkdir -p /home/$USER_ME/.vnc && \
+    cp -t /home/$USER_ME/.vnc /root/.vnc/xstartup && \
+    chmod 755 /home/$USER_ME/.vnc/xstartup && \
+    mkdir -p /workspace && \
+    chown -R $USER_UID:$USER_GID /workspace && \
+    ln -s /workspace /root/workspace && \
+    ln -s /workspace /home/$USER_ME/workspace && \
+    chown -R $USER_UID:$USER_GID /home/$USER_ME && \
     find /startup -name '*.sh' -exec chmod a+x {} + && \
     chown -R $USER_UID:$USER_GID /startup && \
     rm -f /startup.sh && \
-    ln -s /startup/startup_base.sh /startup.sh
+    ln -s /startup/startup_cuda.sh /startup.sh
+ENV \
+    DISPLAY=2 VNC_PORT=5902 \
+    HOME=/home/$USER_ME USER=$USER_ME SHELL=/bin/bash
 
-# vnc jupyter tensorboard
+## vnc jupyter tensorboard
 EXPOSE $VNC_PORT 8888 6006
 
+## user mode container
 USER $USER_UID
 
-# ENTRYPOINT ["/startup.sh"]
+## ENTRYPOINT ["/startup.sh"]
 CMD ["/startup.sh"]
