@@ -41,7 +41,6 @@ RUN \
 # cp /root/{.vimrc,.tmux.conf} /home/$USER_ME && \
 COPY image /
 RUN \
-    find /startup -name '*.sh' -exec chmod a+x {} + && \
     umask 0002 && \
     echo "create user $USER_ME ($USER_UID:$USER_GID)" && \
     # useradd --uid $USER_UID --user-group --create-home --shell /bin/bash --groups adm,sudo,root $USER_ME && \
@@ -49,11 +48,18 @@ RUN \
     useradd --uid $USER_UID --gid $USER_GID --create-home --shell /bin/bash --groups adm,sudo,root $USER_ME && \
     echo "$USER_ME:123123" | chpasswd && \
     cp -t /home/$USER_ME /root/.vimrc /root/.tmux.conf && \
+    mkdir -p /home/$USER_ME/.vnc && \
+    cp -t /home/$USER_ME/.vnc /root/.vnc/xstartup && \
+    chmod 755 /home/$USER_ME/.vnc/xstartup && \
     mkdir -p /workspace && \
     chown -R $USER_UID:$USER_GID /workspace && \
     ln -s /workspace /root/workspace && \
     ln -s /workspace /home/$USER_ME/workspace && \
-    chown -R $USER_UID:$USER_GID /home/$USER_ME
+    chown -R $USER_UID:$USER_GID /home/$USER_ME && \
+    find /startup -name '*.sh' -exec chmod a+x {} + && \
+    chown -R $USER_UID:$USER_GID /startup && \
+    rm -f /startup.sh && \
+    ln -s /startup/startup_base.sh /startup.sh
 
 ENV \
     DISPLAY=2 VNC_PORT=5902 \
@@ -64,5 +70,5 @@ EXPOSE $VNC_PORT 8888 6006
 
 USER $USER_UID
 
-# ENTRYPOINT ["/startup/startup.sh"]
-CMD ["/startup/startup.sh"]
+# ENTRYPOINT ["/startup.sh"]
+CMD ["/startup.sh"]

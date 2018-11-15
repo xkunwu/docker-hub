@@ -2,7 +2,7 @@
 
 # config the screen resolution
 if [ -n "$RESOLUTION" ]; then
-    sed -i "s/1280x800/$RESOLUTION/" /startup/vnc_startup.sh
+    sed -i "s/1280x800/$RESOLUTION/" /startup/vnc_start.sh
 fi
 
 # default user should be you
@@ -35,19 +35,19 @@ fi
 # PASSWORD=
 # VNC_PASSWORD=
 
-# # must provide vnc password
+## must provide vnc password
 if [ ! -f $HOME/.vnc/passwd ]; then
     echo "setting VNC password to $HOME/.vnc/passwd ..."
-    mkdir -p $HOME/.vnc
     vncpasswd $HOME/.vnc/passwd
     chmod 700 $HOME/.vnc
     chmod 400 $HOME/.vnc/passwd
 fi
-su -c "/startup/vnc_startup.sh" $USER
+# su -c "/startup/vnc_start.sh" $USER
+/startup/vnc_start.sh
 
 umask 0002
 
 # start all the services
 mkdir -p $HOME/.supervisord
 mkdir -p $HOME/.supervisord/log
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+#/usr/bin/supervisord -c /etc/supervisor/supervisord.conf

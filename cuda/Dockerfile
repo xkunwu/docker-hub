@@ -4,7 +4,10 @@
 FROM exp:base
 ARG PYTHON_VERSION=3.6
 
+USER root
+
 # install cuda from a runfile
+#COPY --chown=$USER_UID:$USER_GID cuda /tmp/cuda
 COPY cuda /tmp/cuda
 RUN \
     cd /tmp/cuda && \
@@ -33,9 +36,21 @@ RUN \
 ENV \
     PATH=/opt/conda/bin:$PATH
 
+ARG USER_ME=me
+ARG USER_UID=1000
+ARG USER_GID=1000
+# update scripts
+COPY image /
+RUN \
+    find /startup -name '*.sh' -exec chmod a+x {} + && \
+    chown -R $USER_UID:$USER_GID /startup && \
+    rm -f /startup.sh && \
+    ln -s /startup/startup_base.sh /startup.sh
+
 # vnc jupyter tensorboard
 EXPOSE $VNC_PORT 8888 6006
 
-# services like lxde, xvfb, x11vnc will be started
-# ENTRYPOINT ["/startup/startup.sh"]
-CMD ["/startup/startup.sh"]
+USER $USER_UID
+
+# ENTRYPOINT ["/startup.sh"]
+CMD ["/startup.sh"]
