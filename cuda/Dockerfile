@@ -21,7 +21,8 @@ RUN \
         software-properties-common sudo bash-completion apt-utils \
         vim tmux unzip bzip2 supervisor \
         wget curl net-tools ca-certificates \
-        build-essential cmake git ffmpeg
+        build-essential cmake git ffmpeg \
+        gcc-6 g++-6
 
 ## vnc & desktop
 RUN \
@@ -31,11 +32,13 @@ RUN \
         # lxde && \
         xfce4 && \
     apt-get purge -y pm-utils xscreensaver* && \
-    apt-get autoremove && \
-    apt-get autoclean && \
+    apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
 ## install cuda from a runfile
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    NVIDIA_REQUIRE_CUDA="cuda>=9.0"
 #COPY --chown=$USER_UID:$USER_GID cuda /tmp/cuda
 COPY cuda /tmp/cuda
 RUN \
@@ -53,8 +56,8 @@ ENV \
     PATH=/usr/local/cuda-9.0/bin:${PATH} \
     LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
 
-ARG PYTHON_VERSION=3.6
 ## install Miniconda
+ARG PYTHON_VERSION=3.6
 RUN \
     curl -o /tmp/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     chmod +x /tmp/miniconda.sh && \
@@ -65,12 +68,12 @@ RUN \
 ENV \
     PATH=/opt/conda/bin:$PATH
 
+## add the default user
 ARG USER_ME=me
 ARG USER_UID=1000
 ARG USER_GID=1000
-## add the default user
-## weird "cp: cannot stat" error:
-## cp /root/{.vimrc,.tmux.conf} /home/$USER_ME && \
+# weird "cp: cannot stat" error:
+# cp /root/{.vimrc,.tmux.conf} /home/$USER_ME && \
 COPY image /
 RUN \
     umask 0002 && \

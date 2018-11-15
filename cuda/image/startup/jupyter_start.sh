@@ -8,5 +8,5 @@ nohup jupyter-lab \
     --no-browser \
     /workspace 2>&1 &
 
-sleep 2
-jupyter-notebook list  | sed -n "s/^.*token=\(\S\+\).*$/\1/p"
+sleep 1
+/startup/jupyter_list.sh

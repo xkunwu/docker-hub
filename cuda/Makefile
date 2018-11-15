@@ -23,6 +23,7 @@ serve:
 		--name=$(cont_name) \
 		--hostname=palau-docker \
 		--network="host" \
+	    -v ${HOME}/projects/extern:/workspace/code-ext \
 		-p 5902:5902 -p 8888:8888 \
 		-e USER=$(user_me) \
 		$(image_name) bash
@@ -32,6 +33,7 @@ debug:
 		--name=$(cont_name)-debug \
 		--hostname=palau-docker \
 		--network="host" \
+	    -v ${HOME}/projects/extern:/workspace/code-ext \
 		-p 5902:5902 -p 8888:8888 \
 		-e USER=$(user_me) \
 		$(image_name) bash
