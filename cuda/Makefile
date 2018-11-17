@@ -21,7 +21,7 @@ build:
 serve:
 	nvidia-docker run -ti --init \
 		--name=$(cont_name) \
-		--hostname=palau-docker \
+		--hostname="palau-docker" \
 		--network="host" \
 	    -v ${HOME}/projects/extern:/workspace/code-ext \
 		-p 5902:5902 -p 8888:8888 \
@@ -31,11 +31,12 @@ serve:
 debug:
 	nvidia-docker run -ti --rm --init \
 		--name=$(cont_name)-debug \
-		--hostname=palau-docker \
+		--hostname="palau-docker" \
 		--network="host" \
 	    -v ${HOME}/projects/extern:/workspace/code-ext \
 		-p 5902:5902 -p 8888:8888 \
 		-e USER=$(user_me) \
+		--privileged \
 		$(image_name) bash
 
 reattach:

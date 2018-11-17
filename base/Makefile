@@ -21,7 +21,7 @@ build:
 serve:
 	nvidia-docker run -ti --init \
 		--name=$(cont_name) \
-		--hostname=palau-docker \
+		--hostname="palau-docker" \
 		--network="host" \
 		-p 5902:5902 \
 		-e USER=$(user_me) \
@@ -30,7 +30,7 @@ serve:
 debug:
 	nvidia-docker run -ti --rm --init \
 		--name=$(cont_name) \
-		--hostname=palau-docker \
+		--hostname="palau-docker" \
 		--network="host" \
 		-p 5902:5902 \
 		-e USER=$(user_me) \

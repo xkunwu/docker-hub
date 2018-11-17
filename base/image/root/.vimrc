@@ -10,16 +10,16 @@ set fileencodings=utf-8,gbk,gb18030,gb2312
 set tabstop=4 " set tab width
 set softtabstop=4
 set textwidth=120      " set to 0 for 'wrapmargin' taking effect
-set formatoptions+=mM
+set formatoptions+=mM   " useful for Asian text
 " set wrapmargin=120 " Define right margin for line wrapping
 highlight rightMargin term=bold ctermbg=red ctermfg=white guibg=red
 match rightMargin /.\%>81v*/
+" set colorcolumn=80
 set backspace=2 " enable backspace
 set number " show line number
 set whichwrap=b,s,<,>,[,] " jump between lines at eol & bol
 set listchars=tab:.\ ,trail:. " show tab as: '. '
-" set autochdir " change dir to editing file's automatically
-" this could fail a cscope auto-generation.
+" set autochdir " change dir to editing file's automatically, this could fail a cscope auto-generation.
 set hidden " hide buffer automatically
 set scrolloff=5
 
@@ -47,10 +47,11 @@ set nowritebackup
 set noswapfile
 
 " cursor shape
-let &t_ti.="\e[1 q"
-let &t_SI.="\e[5 q"
-let &t_EI.="\e[1 q"
-let &t_te.="\e[0 q"
+autocmd InsertEnter * set cul
+autocmd InsertLeave * set nocul
+"let &t_SI = "\<Esc>[6 q"
+"let &t_SR = "\<Esc>[4 q"
+"let &t_EI = "\<Esc>[2 q"
 
 " mouse scroll
 set mouse=v
@@ -98,8 +99,10 @@ set foldlevel=100 " Don't autofold anything (but I can still fold manually)
 "--------------------------------------------------------------------------------
 " some short-cuts
 "--------------------------------------------------------------------------------
+set clipboard=unnamedplus
 " copy
 vnoremap <C-Insert> "+y
+"vnoremap <Leader>y "+y
 " cut
 vnoremap <S-Del> "+x
 " paste
@@ -123,11 +126,12 @@ nmap <S-F6> :tabp<cr> " show prev tab
 cmap W!! w !sudo tee > /dev/null %
 
 " open the file explorer, and hit another - to move up one directory
-nmap - :Lexplore!<CR>
+nmap - :Explore!<CR>
 nmap _ :Rexplore<CR>
 let g:netrw_liststyle = 3 " 3: tree style listing
-"let g:netrw_altv = 1 " right splitting
 let g:netrw_browse_split = 0 " =0: re-using the same window  (default)
+" let g:netrw_preview = 1 " =1 preview window shown in a vertically split window.
+" let g:netrw_altv = 1 " right splitting
 
 
 "--------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 .tags*
 *.bak
+.directory
 rsync-proj.sh
 task-issue.md
 cuda-run

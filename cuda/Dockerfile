@@ -30,7 +30,7 @@ RUN \
         # tigervnc-standalone-server \
         tightvncserver \
         # lxde && \
-        xfce4 && \
+        xfce4 autocutsel && \
     apt-get purge -y pm-utils xscreensaver* && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
@@ -56,18 +56,6 @@ ENV \
     PATH=/usr/local/cuda-9.0/bin:${PATH} \
     LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
 
-## install Miniconda
-ARG PYTHON_VERSION=3.6
-RUN \
-    curl -o /tmp/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    chmod +x /tmp/miniconda.sh && \
-    /tmp/miniconda.sh -b -p /opt/conda && \
-    rm /tmp/miniconda.sh && \
-    /opt/conda/bin/conda install -y python=$PYTHON_VERSION numpy scipy mkl cython jupyterlab && \
-    /opt/conda/bin/conda clean -ya
-ENV \
-    PATH=/opt/conda/bin:$PATH
-
 ## add the default user
 ARG USER_ME=me
 ARG USER_UID=1000
@@ -82,15 +70,18 @@ RUN \
     groupadd --gid $USER_GID $USER_ME && \
     useradd --uid $USER_UID --gid $USER_GID --create-home --shell /bin/bash --groups adm,sudo,root $USER_ME && \
     echo "$USER_ME:123123" | chpasswd && \
+    \
     cp -t /home/$USER_ME /root/.vimrc /root/.tmux.conf && \
     mkdir -p /home/$USER_ME/.vnc && \
     cp -t /home/$USER_ME/.vnc /root/.vnc/xstartup && \
     chmod 755 /home/$USER_ME/.vnc/xstartup && \
+    \
     mkdir -p /workspace && \
     chown -R $USER_UID:$USER_GID /workspace && \
-    ln -s /workspace /root/workspace && \
-    ln -s /workspace /home/$USER_ME/workspace && \
+    ln -s /workspace /root/projects && \
+    ln -s /workspace /home/$USER_ME/projects && \
     chown -R $USER_UID:$USER_GID /home/$USER_ME && \
+    \
     find /startup -name '*.sh' -exec chmod a+x {} + && \
     chown -R $USER_UID:$USER_GID /startup && \
     rm -f /startup.sh && \
@@ -98,6 +89,21 @@ RUN \
 ENV \
     DISPLAY=2 VNC_PORT=5902 \
     HOME=/home/$USER_ME USER=$USER_ME SHELL=/bin/bash
+
+## install Miniconda
+ARG PYTHON_VERSION=3.6
+RUN \
+    curl -o /tmp/miniconda.sh -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    chmod +x /tmp/miniconda.sh && \
+    /tmp/miniconda.sh -b -p /opt/conda && \
+    rm /tmp/miniconda.sh && \
+    /opt/conda/bin/conda install -y python=$PYTHON_VERSION && \
+    /opt/conda/bin/conda install -y mkl cython jupyterlab && \
+    /opt/conda/bin/conda clean -ya && \
+    /opt/conda/bin/pip install --upgrade pip && \
+    chown -R $USER_UID:$USER_GID /opt/conda 
+ENV \
+    PATH=/opt/conda/bin:$PATH
 
 ## vnc jupyter tensorboard
 EXPOSE $VNC_PORT 8888 6006
