@@ -15,7 +15,7 @@
 -   Build from the source
 
 ## NOTE
--   make sure all sh files are executable!
+-   Make sure all sh files are executable! Otherwise do the similar after deploy (in the container).
     ```
     find . -type f -name "*.sh" -exec chmod +x {} \;
     ```
