@@ -1,3 +1,8 @@
-# CUDA 9.0 (with CUDNN 7) on Ubuntu 18.04 Dockerfile
-Python: Miniconda
-VNC server: LXDE + Xvfb + X11vnc
+#  CUDA support
+> Standalone image evolved from the base image.
+
+-   User control (unprivileged)
+-   VNC (tightvncserver)
+-   GUI (xfce4).
+-   CUDA 9.0 (with CUDNN 7)
+-   Python: Miniconda
